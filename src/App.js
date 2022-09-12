@@ -145,7 +145,7 @@ class App extends React.Component
   }
 
   // Update gameboard color
-  // Blue: 
+  // Blue: (66,202,202)
   // Red: (242,76, 76)
   // White: (250,250,250)
   updateColour = ( color ) =>
@@ -170,7 +170,20 @@ class App extends React.Component
   // Draw the lines between dots when clicked
   drawLine = ( event ) =>
   {
+    var currentCoordinate = event.target.dataset.coord
+    var currentLineCoordinate = this.state.lineCoordinates[currentCoordinate]
 
+    // If the current line coordinate is null,
+    // Check which player's turn is it now and update linecoordinates accordingly.
+    if(currentLineCoordinate === 0)
+    {
+      let newState = this.state.lineCoordinates
+
+      newState[currentCoordinate] = this.state.turn === 'red' ? 1 : -1
+      this.setState(prevState => ({
+        lineCoordinates : newState
+      }))
+    }
   }
 
   // Checks whether the square is compelete
