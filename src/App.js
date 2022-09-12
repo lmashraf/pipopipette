@@ -86,7 +86,6 @@ class App extends React.Component
             }, '') )
           }
         }
-        // i%2 != 0
         else
         {
           if( j%2 === 0 )
@@ -117,7 +116,32 @@ class App extends React.Component
   // Update the size of the game board
   updateBoardSize = ( event ) =>
   {
+    if(window.confirm('Would you really like to restart the game?'))
+    {
+      // Create a new state
+      var newState
 
+      // Read value of the new chosen board size
+      let size = event.target.id
+
+      switch( size )
+      {
+        case "small":
+          newState = this.initBoard( 3 )
+          break
+        case "medium":
+          newState = this.initBoard( 5 )
+          break
+        case "large":
+          newState = this.initBoard( 11 )
+          break
+        default:
+          // Do nothing
+          return
+      }
+
+      this.setState((prevState) => newState)
+    }
   }
 
   // Update gameboard color
@@ -166,16 +190,16 @@ class App extends React.Component
           </p>
           Please select the size of the game board:
 
-          <button id="small"> Small </button>
-          <button id="medium"> Medium </button>
-          <button id="large"> Large </button>
+          <button id="small" onClick={ this.updateBoardSize }> Small </button>
+          <button id="medium" onClick={ this.updateBoardSize }> Medium </button>
+          <button id="large" onClick={ this.updateBoardSize }> Large </button>
 
           <p id="winner">
             [victory message notification]
           </p>
         </div>
         <div id="board">
-          { this.createBoard( 3 ) }
+          { this.createBoard( this.state.boardSize ) }
         </div>
       </div>
     );
