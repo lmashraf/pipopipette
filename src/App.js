@@ -145,12 +145,26 @@ class App extends React.Component
   }
 
   // Update gameboard color
-  // Blue: (242,76, 76)
-  // Red: (66,202,202)
+  // Blue: 
+  // Red: (242,76, 76)
   // White: (250,250,250)
-  updateColour = ( int ) =>
+  updateColour = ( color ) =>
   {
-
+    // White
+    if ( color === 0)
+    {
+      return ( 'rgb(250,250,250)' )
+    }
+    // Red
+    if ( color === 1)
+    {
+      return ( 'rgb(242,76, 76)' )
+    }
+    // Blue
+    if ( color === -1 )
+    {
+      return ( 'rgb(66,202,202)' )
+    }
   }
 
   // Draw the lines between dots when clicked

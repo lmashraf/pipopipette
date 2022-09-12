@@ -17,21 +17,18 @@
 .box {
   height: 25px;
   width: 25px;
-  background-color: aqua;
 }
 
 .horizontalContainer {
   height: 4px;
   width: 25px;
   border: 2px;
-  background-color: coral;
 }
 
 .verticalContainer {
   height: 25px;
   width: 4px;
   border: 2px;
-  background-color: coral;
 }
 
 #board {
