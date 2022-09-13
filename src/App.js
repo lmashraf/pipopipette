@@ -3,12 +3,23 @@ import React from 'react';
 
 class App extends React.Component
 {
+  colours = {
+    // Colours
+    red : "rgb(242,76, 76)",
+    blue: "rgb(66,202,202)",
+    white: 'rgb(250,250,250)',
+    // Highlights
+    red_transparent: '(242,76,76,0.5)',
+    blue_transparent: 'rgb(66,202,202,0.5)'
+  }
+
   constructor( props )
   {
     super( props )
     // Set default game board size set to 5x5
     this.state = this.initBoard( 5 );
   }
+
 
   // Initialise the game board
   initBoard = ( size ) =>
@@ -29,7 +40,7 @@ class App extends React.Component
       {
         for( let j=0; j < state.boardSize; ++j )
         {
-          state.boxColours = 'rgb(250, 250, 250)';
+          state.boxColours[ i + "," + j ]= 'rgb(250, 250, 250)'
         }
       }
 
@@ -81,8 +92,13 @@ class App extends React.Component
             rows.push( React.createElement( 'div',
             {
               className: 'horizontalContainer',
-              'data-coordinate' : '0,' + Math.floor( i/2 ) + ',' + Math.floor( j/2 )
-              // TODO: Add onclick event to fill line with different colour.
+              'data-coord' : '0,' + Math.floor( i/2 ) + ',' + Math.floor( j/2 ),
+              onClick: this.drawLine,
+              style:
+              {
+                backgroundColor: this.updateColour( this.state.lineCoordinates[ '0,' + Math.floor( i/2 ) + ',' + Math.floor( j/2 ) ] )
+              }
+              // TODO: Add hover effect on lines
             }, '') )
           }
         }
@@ -93,8 +109,12 @@ class App extends React.Component
             rows.push( React.createElement( 'div',
             {
               className: 'verticalContainer',
-              'data-coordinate': '1,' + Math.floor( j/2 ) + ',' + Math.floor( i/2 )
-              //TODO: Add onclick event to fill line with different colour
+              'data-coord': '1,' + Math.floor( j/2 ) + ',' + Math.floor( i/2 ),
+              onClick: this.drawLine,
+              style:
+              {
+                backgroundColor: this.updateColour( this.state.lineCoordinates[ '1,' + Math.floor( j/2 ) + ',' + Math.floor( i/2 ) ] )
+              }
             }, '' ) )
           }
           else
@@ -140,7 +160,7 @@ class App extends React.Component
           return
       }
 
-      this.setState((prevState) => newState)
+      this.setState( ( prevState ) => newState )
     }
   }
 
@@ -148,48 +168,122 @@ class App extends React.Component
   // Blue: (66,202,202)
   // Red: (242,76, 76)
   // White: (250,250,250)
-  updateColour = ( color ) =>
+  updateColour = ( colour ) =>
   {
     // White
-    if ( color === 0)
+    if ( colour === 0)
     {
-      return ( 'rgb(250,250,250)' )
+      return ( this.colours.white )
     }
     // Red
-    if ( color === 1)
+    if ( colour === 1)
     {
-      return ( 'rgb(242,76, 76)' )
+      return ( this.colours.red )
     }
     // Blue
-    if ( color === -1 )
+    if ( colour === -1 )
     {
-      return ( 'rgb(66,202,202)' )
+      return ( this.colours.blue )
     }
   }
 
   // Draw the lines between dots when clicked
   drawLine = ( event ) =>
   {
+    // Read current coordinates for line, dots and box
     var currentCoordinate = event.target.dataset.coord
-    var currentLineCoordinate = this.state.lineCoordinates[currentCoordinate]
+    console.log(currentCoordinate)
+
+    // i, j and k coordinates as set by createBoard function.
+    var i = currentCoordinate.split( ',' )[ 0 ]
+    var j = currentCoordinate.split( ',' )[ 1 ]
+    var k = currentCoordinate.split( ',' )[ 2 ]
+    var currentLineCoordinate = this.state.lineCoordinates[ currentCoordinate ]
+
+    // Box object to store new colour and check whether it is filled
+    let boxState = {
+      newBoxColours: this.state.boxColours,
+      filledBox: 0
+    }
 
     // If the current line coordinate is null,
     // Check which player's turn is it now and update linecoordinates accordingly.
-    if(currentLineCoordinate === 0)
+    if( currentLineCoordinate === 0 )
     {
       let newState = this.state.lineCoordinates
 
-      newState[currentCoordinate] = this.state.turn === 'red' ? 1 : -1
-      this.setState(prevState => ({
+      newState[ currentCoordinate ] = this.state.turn === 'red' ? 1 : -1
+
+      this.setState( prevState => ( {
         lineCoordinates : newState
+      } ) )
+    }
+
+    if( i === '0' )
+    {
+      this.verifyBoxHelper(j, k, boxState )
+      this.verifyBoxHelper(parseFloat(j) - 1, k, boxState )
+    }
+    else
+    {
+      this.verifyBoxHelper( k, j, boxState )
+      this.verifyBoxHelper( k, parseFloat( j ) - 1, boxState )
+    }
+
+    // If no box is filled, continue the game.
+    if( boxState.filledBox === 0 )
+    {
+      console.log('Switch!')
+      this.setState( ( prevState ) => ({
+        turn: prevState.turn === 'red' ? 'blue' : 'red'
       }))
+    }
+    else
+    {
+      this.checkGameOver()
     }
   }
 
-  // Checks whether the square is compelete
-  applyDots = ( j, k ) =>
+  // Checks whether the box is compelete
+  verifyBox = ( j, k ) =>
   {
+    var borderUp, borderDown, borderLeft, borderRight
 
+    borderUp = Math.abs( this.state.lineCoordinates[ '0,' + j + ',' + k ] )
+    borderDown = Math.abs( this.state.lineCoordinates[ '1,' + k + ',' + j ] )
+
+    var J = parseFloat( j )
+    var K = parseFloat( k )
+
+    borderLeft  = Math.abs( ( J + 1 ) > this.state.boardSize ? 0 : this.state.lineCoordinates[ '0,' + ( J + 1 ) + ',' + k])
+    borderRight = Math.abs( ( K + 1 ) > this.state.boardSize ? 0 : this.state.lineCoordinates[ '1,' + ( K + 1 ) + ',' + j])
+
+    return ( borderUp + borderDown + borderLeft + borderRight )
+  }
+
+  // Helper to update Box properly
+  verifyBoxHelper = ( j, k, boxState) =>
+  {
+    if ( this.verifyBox( j, k ) === 4 )
+    {
+      // Box is filled
+      boxState.filledBox = 1
+
+      // Check whose turn it is
+      console.log(j + ',' + k)
+      console.log('verifyBoxHelper.boxState.newBoxColours:' + boxState.newBoxColours[ j + ',' + k ])
+      console.log('verifyBoxHelper.boxState.fillexBox:' + boxState.filledBox)
+
+      boxState.newBoxColours[ j + ',' + k ] = this.state.turn === 'red' ? this.colours.red_transparent : this.colours.blue_transparent
+
+      // Update score and box colour
+      this.setState( ( prevState ) => (
+      {
+        scoreRed: ( prevState.turn === 'red' ) ? prevState.scoreRed + 1 : prevState.scoreRed,
+        scoreBlue: ( prevState.turn === 'blue' ) ? prevState.scoreBlue + 1 : prevState.scoreBlue,
+        boxColours : boxState.newBoxColours
+      } ) )
+    }
   }
 
   // Checks game over conditions
@@ -213,7 +307,7 @@ class App extends React.Component
             La Pipopipette
           </h1>
           <p id="score">
-            Red: [scoreRed], Blue: [scoreBlue]
+            Red: { this.state.scoreRed }, Blue: { this.state.scoreBlue }
           </p>
           Please select the size of the game board:
 
