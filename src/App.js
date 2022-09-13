@@ -1,16 +1,15 @@
 import './App.css';
+import Logo from './assets/logo.js'
 import React from 'react';
 
 class App extends React.Component
 {
-  colours = {
+  colours =
+  {
     // Colours
     red : "rgb(242,76, 76)",
     blue: "rgb(66,202,202)",
-    white: 'rgb(250,250,250)',
-    // Highlights
-    red_transparent: '(242,76,76,0.5)',
-    blue_transparent: 'rgb(66,202,202,0.5)'
+    white: 'rgb(250,250,250)'
   }
 
   constructor( props )
@@ -35,23 +34,20 @@ class App extends React.Component
         boxColours: { }
       };
 
-      // Initialise box coulours to #FAFAFA
+      // Initialise box coulours to white
       for( let i = 0; i < state.boardSize; ++i )
       {
         for( let j=0; j < state.boardSize; ++j )
         {
-          state.boxColours[ i + "," + j ]= 'rgb(250, 250, 250)'
+          state.boxColours[ i + "," + j ]= 'rgb(255, 255, 255)'
         }
       }
 
       // Initialise line coordinates.
-      // i: Colour
       for( let i=0; i < 2; ++i )
       {
-        // j: Dots
         for( let j=0; j < state.boardSize + 1; ++j )
         {
-          // k: Lines
           for( let k=0; k < state.boardSize; ++k )
           {
             state.lineCoordinates[ i + "," + j + "," + k ] = 0;
@@ -192,55 +188,59 @@ class App extends React.Component
   {
     // Read current coordinates for line, dots and box
     var currentCoordinate = event.target.dataset.coord
-    console.log(currentCoordinate)
-
-    // i, j and k coordinates as set by createBoard function.
-    var i = currentCoordinate.split( ',' )[ 0 ]
-    var j = currentCoordinate.split( ',' )[ 1 ]
-    var k = currentCoordinate.split( ',' )[ 2 ]
     var currentLineCoordinate = this.state.lineCoordinates[ currentCoordinate ]
 
     // Box object to store new colour and check whether it is filled
-    let boxState = {
-      newBoxColours: this.state.boxColours,
-      filledBox: 0
-    }
+    let boxState = { }
 
     // If the current line coordinate is null,
     // Check which player's turn is it now and update linecoordinates accordingly.
     if( currentLineCoordinate === 0 )
     {
+      boxState = {
+        newBoxColours: this.state.boxColours,
+        filledBox: 0
+      }
+      // Update current line coordinates
+      currentLineCoordinate = this.state.lineCoordinates[ currentCoordinate ]
+
+      // i, j and k coordinates as set by createBoard function.
+      var i = currentCoordinate.split( ',' )[ 0 ]
+      var j = currentCoordinate.split( ',' )[ 1 ]
+      var k = currentCoordinate.split( ',' )[ 2 ]
+
       let newState = this.state.lineCoordinates
 
       newState[ currentCoordinate ] = this.state.turn === 'red' ? 1 : -1
 
-      this.setState( prevState => ( {
-        lineCoordinates : newState
-      } ) )
-    }
+      this.setState( prevState => (
+        {
+          lineCoordinates : newState
+        } ) )
 
-    if( i === '0' )
-    {
-      this.verifyBoxHelper(j, k, boxState )
-      this.verifyBoxHelper(parseFloat(j) - 1, k, boxState )
-    }
-    else
-    {
-      this.verifyBoxHelper( k, j, boxState )
-      this.verifyBoxHelper( k, parseFloat( j ) - 1, boxState )
-    }
+      if( i === '0' )
+      {
+        this.verifyBoxHelper(j, k, boxState )
+        this.verifyBoxHelper(parseFloat(j) - 1, k, boxState )
+      }
+      else
+      {
+        this.verifyBoxHelper( k, j, boxState )
+        this.verifyBoxHelper( k, parseFloat( j ) - 1, boxState )
+      }
 
-    // If no box is filled, continue the game.
-    if( boxState.filledBox === 0 )
-    {
-      console.log('Switch!')
-      this.setState( ( prevState ) => ({
-        turn: prevState.turn === 'red' ? 'blue' : 'red'
-      }))
-    }
-    else
-    {
-      this.checkGameOver()
+      // If no box is filled, continue the game.
+      if( boxState.filledBox === 0 )
+      {
+        this.setState( ( prevState ) => (
+          {
+            turn: prevState.turn === 'red' ? 'blue' : 'red'
+          } ) )
+      }
+      else
+      {
+        this.checkGameOver( )
+      }
     }
   }
 
@@ -274,7 +274,7 @@ class App extends React.Component
       console.log('verifyBoxHelper.boxState.newBoxColours:' + boxState.newBoxColours[ j + ',' + k ])
       console.log('verifyBoxHelper.boxState.fillexBox:' + boxState.filledBox)
 
-      boxState.newBoxColours[ j + ',' + k ] = this.state.turn === 'red' ? this.colours.red_transparent : this.colours.blue_transparent
+      boxState.newBoxColours[ j + ',' + k ] = this.state.turn === 'red' ? this.colours.red : this.colours.blue
 
       // Update score and box colour
       this.setState( ( prevState ) => (
@@ -289,13 +289,27 @@ class App extends React.Component
   // Checks game over conditions
   checkGameOver = ( ) =>
   {
-
+    this.setState( ( prevState ) => (
+      {
+      victoryMessage: ( prevState.scoreRed + prevState.scoreBlue === prevState.boardSize * 2 ) ? this.notifyVictory( prevState ) : ''
+    } ) )
   }
 
   // Notify which player has won the game
   notifyVictory = ( state ) =>
   {
-
+    if ( state.scoreBlue > state.scoreRed )
+    {
+      return "Blue is the Victor!"
+    }
+    else if( state.scoreRed < state.scoreBlue )
+    {
+      return "Red is the Victor!"
+    }
+    else
+    {
+      return "Draw!"
+    }
   }
 
   render( )
@@ -303,20 +317,27 @@ class App extends React.Component
     return (
       <div id="game">
         <div id="header">
+          <Logo></Logo>
           <h1 id="title">
             La Pipopipette
           </h1>
           <p id="score">
-            Red: { this.state.scoreRed }, Blue: { this.state.scoreBlue }
+            <p id="red" style={{ backgroundColor: (this.state.turn === 'red') ? 'rgb(242,76,76,0.5)' :'white' }}>
+              Red: { this.state.scoreRed }
+            </p>
+            <p id="blue" style={{ backgroundColor:  this.state.turn === 'blue' ? 'rgb(66,202,202,0.5)' : 'white' }} >
+              Blue: { this.state.scoreBlue }
+            </p>
           </p>
           Please select the size of the game board:
-
-          <button id="small" onClick={ this.updateBoardSize }> Small </button>
-          <button id="medium" onClick={ this.updateBoardSize }> Medium </button>
-          <button id="large" onClick={ this.updateBoardSize }> Large </button>
+          <div id="difficulty">
+            <button id="small" onClick={ this.updateBoardSize }> Small </button>
+            <button id="medium" onClick={ this.updateBoardSize }> Medium </button>
+            <button id="large" onClick={ this.updateBoardSize }> Large </button>
+          </div>
 
           <p id="winner">
-            [victory message notification]
+            { this.state.victoryMessage }
           </p>
         </div>
         <div id="board">
