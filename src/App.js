@@ -7,16 +7,22 @@ class App extends React.Component
   colours =
   {
     // Colours
-    red : "rgb(242,76, 76)",
-    blue: "rgb(66,202,202)",
-    white: 'rgb(250,250,250)'
+    red : 'rgb(242,76,76)',
+    blue: 'rgb(66,202,202)',
+    white: 'rgb(106,106,106)',
+    light_grey: 'rgb(217,217,217)',
+    black: 'rgb(30,30,30)',
+
+    // Highlights
+    red_highlight: 'rgb(242,76,76,0.7)',
+    blue_highlight: 'rgb(66,202,202,0.7)'
   }
 
   constructor( props )
   {
     super( props )
-    // Set default game board size set to 5x5
-    this.state = this.initBoard( 5 );
+    // Set default game board size set to 3x3
+    this.state = this.initBoard( 3 );
   }
 
 
@@ -87,14 +93,15 @@ class App extends React.Component
           {
             rows.push( React.createElement( 'div',
             {
-              className: 'horizontalContainer',
+              className: 'horizontalLine',
               'data-coord' : '0,' + Math.floor( i/2 ) + ',' + Math.floor( j/2 ),
               onClick: this.drawLine,
               style:
               {
                 backgroundColor: this.updateColour( this.state.lineCoordinates[ '0,' + Math.floor( i/2 ) + ',' + Math.floor( j/2 ) ] )
-              }
-              // TODO: Add hover effect on lines
+              },
+              onMouseEnter: this.addHighlight,
+              onMouseLeave: this.deleteHighlight
             }, '') )
           }
         }
@@ -104,13 +111,15 @@ class App extends React.Component
           {
             rows.push( React.createElement( 'div',
             {
-              className: 'verticalContainer',
+              className: 'verticalLine',
               'data-coord': '1,' + Math.floor( j/2 ) + ',' + Math.floor( i/2 ),
               onClick: this.drawLine,
               style:
               {
                 backgroundColor: this.updateColour( this.state.lineCoordinates[ '1,' + Math.floor( j/2 ) + ',' + Math.floor( i/2 ) ] )
-              }
+              },
+              onMouseEnter: this.addHighlight,
+              onMouseLeave: this.deleteHighlight
             }, '' ) )
           }
           else
@@ -169,7 +178,7 @@ class App extends React.Component
     // White
     if ( colour === 0)
     {
-      return ( this.colours.white )
+      return ( this.colours.light_grey )
     }
     // Red
     if ( colour === 1)
@@ -182,6 +191,35 @@ class App extends React.Component
       return ( this.colours.blue )
     }
   }
+
+  addHighlight = ( event ) =>
+  {
+    var currentCoordinate = event.target.dataset.coord
+
+    if( this.state.lineCoordinates[currentCoordinate] === 0 )
+    {
+      if( this.state.turn === 'red' )
+      {
+        event.target.style.backgroundColor = this.colours.red_highlight
+      }
+      else
+      {
+        event.target.style.backgroundColor = this.colours.blue_highlight
+      }
+    }
+  }
+
+  deleteHighlight = ( event ) =>
+  {
+    var currentCoordinate = event.target.dataset.coord
+
+    if( this.state.lineCoordinates[currentCoordinate] === 0 )
+    {
+      event.target.style.backgroundColor = this.colours.white
+    }
+  }
+
+
 
   // Draw the lines between dots when clicked
   drawLine = ( event ) =>
@@ -289,20 +327,22 @@ class App extends React.Component
   // Checks game over conditions
   checkGameOver = ( ) =>
   {
+    console.log("Is game over?")
+    console.log(this.state.scoreBlue + this.state.scoreRed, " === ", this.state.boardSize*2)
     this.setState( ( prevState ) => (
       {
-      victoryMessage: ( prevState.scoreRed + prevState.scoreBlue === prevState.boardSize * 2 ) ? this.notifyVictory( prevState ) : ''
-    } ) )
+        victoryMessage: ( prevState.scoreRed + prevState.scoreBlue === prevState.boardSize ** 2 ) ? this.notifyVictory( prevState ) : ''
+      } ) )
   }
 
   // Notify which player has won the game
   notifyVictory = ( state ) =>
   {
-    if ( state.scoreBlue > state.scoreRed )
+    if ( this.state.scoreBlue > this.state.scoreRed )
     {
       return "Blue is the Victor!"
     }
-    else if( state.scoreRed < state.scoreBlue )
+    else if( this.state.scoreRed < this.state.scoreBlue )
     {
       return "Red is the Victor!"
     }
@@ -331,9 +371,9 @@ class App extends React.Component
           </p>
           Please select the size of the game board:
           <div id="difficulty">
-            <button id="small" onClick={ this.updateBoardSize }> Small </button>
-            <button id="medium" onClick={ this.updateBoardSize }> Medium </button>
-            <button id="large" onClick={ this.updateBoardSize }> Large </button>
+            <button class="button" id="small" onClick={ this.updateBoardSize }> Small </button>
+            <button class="button" id="medium" onClick={ this.updateBoardSize }> Medium </button>
+            <button class="button" id="large" onClick={ this.updateBoardSize }> Large </button>
           </div>
 
           <p id="winner">

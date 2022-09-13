@@ -9,10 +9,9 @@
 }
 
 .dot {
-  height: 8px;
-  width: 8px;
+  height: 4px;
+  width: 4px;
   background-color: #282c34;
-  border-radius: 90%;
 }
 
 .box {
@@ -20,16 +19,30 @@
   width: 64px;
 }
 
-.horizontalContainer {
+.horizontalLine {
   height: 4px;
   width: 64px;
-  border-bottom: 2px dashed #D9D9D9;
+  background: #FAFAFA;
+  border: 2px  #D9D9D9;
+  transition: 1s ease-in-out;
 }
 
-.verticalContainer {
+.horizontalLine:hover {
+  transition: 1s ease-in-out;
+  background: #18181818;
+}
+
+.verticalLine {
   height: 64px;
   width: 4px;
-  border-left: 2px dashed #D9D9D9;
+  background: #FAFAFA;
+  border: 2px  #D9D9D9;
+  transition: 1s ease-in-out;
+}
+
+.verticalLine:hover{
+  transition: 1s ease-in-out;
+  background: #18181818;
 }
 
 #difficulty
@@ -53,4 +66,22 @@
   flex-direction: column;
   padding:10px 50px;
   margin:10px
+}
+
+.button {
+  width: 92px;
+  height: 24px;
+  cursor: pointer;
+  background: #1E1E1E;
+  color: #FAFAFA;
+  border: 1px solid #FAFAFA;
+  outline: none;
+  transition: 1s ease-in-out;
+}
+
+.button:hover {
+  transition: 1s ease-in-out;
+  background: #4F95DA;
+  border: 1px solid #FAFAFA;
+  color: white;
 }
