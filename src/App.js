@@ -215,7 +215,7 @@ class App extends React.Component
 
     if( this.state.lineCoordinates[currentCoordinate] === 0 )
     {
-      event.target.style.backgroundColor = this.colours.white
+      event.target.style.backgroundColor = this.colours.light_grey
     }
   }
 
