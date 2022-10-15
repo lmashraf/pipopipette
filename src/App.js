@@ -183,12 +183,12 @@ class App extends React.Component
     // Red
     if ( colour === 1)
     {
-      return ( this.colours.red )
+      return ( this.colours.black )
     }
     // Blue
     if ( colour === -1 )
     {
-      return ( this.colours.blue )
+      return ( this.colours.black )
     }
   }
 
@@ -342,7 +342,7 @@ class App extends React.Component
     {
       return "Blue is the Victor!"
     }
-    else if( this.state.scoreRed < this.state.scoreBlue )
+    else if( this.state.scoreBlue < this.state.scoreRed )
     {
       return "Red is the Victor!"
     }
@@ -362,10 +362,10 @@ class App extends React.Component
             La Pipopipette
           </h1>
           <p id="score">
-            <p id="red" style={{ backgroundColor: (this.state.turn === 'red') ? 'rgb(242,76,76,0.5)' :'white' }}>
+            <p id="red" style={{ textAlign: 'center', width: '128px', borderRadius:'10px', backgroundColor: (this.state.turn === 'red') ? 'rgb(242,76,76,0.5)' :'white' }}>
               Red: { this.state.scoreRed }
             </p>
-            <p id="blue" style={{ backgroundColor:  this.state.turn === 'blue' ? 'rgb(66,202,202,0.5)' : 'white' }} >
+            <p id="blue" style={{ textAlign: 'center', width: '128px', borderRadius:'10px',backgroundColor:  this.state.turn === 'blue' ? 'rgb(66,202,202,0.5)' : 'white' }} >
               Blue: { this.state.scoreBlue }
             </p>
           </p>
